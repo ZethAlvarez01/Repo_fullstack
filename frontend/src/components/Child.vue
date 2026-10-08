@@ -1,6 +1,7 @@
 <script lang="ts" setup>
     defineProps({
-        mensaje: String
+        mensaje: String,
+        person: Object
     })
 </script>
 
@@ -8,6 +9,8 @@
     <h1>Mensaje del hijo</h1>
 
     <p>{{ mensaje }}</p>
+
+    <div>{{ person?.nombre }}</div>
 
 </template>
 

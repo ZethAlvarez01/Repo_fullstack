@@ -5,6 +5,11 @@ from fastapi.encoders import jsonable_encoder
 from pymongo.errors import PyMongoError
 from app.database import db
 
+import resend
+from pydantic import BaseModel, EmailStr, Field
+
+
+
 
 from fastapi.middleware.cors import CORSMiddleware
 
@@ -51,3 +56,42 @@ def obtener_datos():
             status_code=503,
             detail="No fue posible conectar con MongoDB Atlas.",
         ) from error
+
+class Contacto(BaseModel):
+    nombre: str = Field(min_length=1, max_length=100)
+    correo: EmailStr
+    mensaje: str = Field(min_length=1, max_length=3000)
+
+
+@app.post("/contacto")
+def enviar_contacto(datos: Contacto):
+    api_key = os.getenv("RESEND_API_KEY")
+    destino = os.getenv("CONTACT_EMAIL")
+
+    if not api_key or not destino:
+        raise HTTPException(
+            status_code=503,
+            detail="Servicio de correo no configurado"
+        )
+
+    resend.api_key = api_key
+
+    try:
+        resend.Emails.send({
+            "from": "Formulario <onboarding@resend.dev>",
+            "to": [destino],
+            "subject": f"Nuevo contacto de {datos.nombre}",
+            "text": (
+                f"Nombre: {datos.nombre}\n"
+                f"Correo: {datos.correo}\n\n"
+                f"Mensaje:\n{datos.mensaje}"
+            ),
+            "reply_to": str(datos.correo),
+        })
+    except Exception:
+        raise HTTPException(
+            status_code=502,
+            detail="No se pudo enviar el correo"
+        )
+
+    return {"mensaje": "Correo enviado correctamente"}
