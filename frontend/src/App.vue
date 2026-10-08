@@ -7,6 +7,7 @@ import Test2 from './components/Test2.vue';
 import Whatsapp from './components/Whatsapp.vue';
 import SiteHeader from './components/SiteHeader.vue';
 import ImageR2 from './components/ImageR2.vue';
+import Crear from './components/Crear.vue';
 
 const variable_deL_papa = "Hola soy el papa"
 const person = {
@@ -37,5 +38,7 @@ const person = {
   <hr>
 
   <ImageR2></ImageR2>
+
+  <Crear></Crear>
 
 </template>

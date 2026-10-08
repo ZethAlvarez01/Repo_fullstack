@@ -6,11 +6,15 @@ from fastapi.responses import StreamingResponse
 from pymongo.errors import PyMongoError
 from app.database import db
 
+
 import resend
 from pydantic import BaseModel, EmailStr, Field
 
 from botocore.exceptions import BotoCoreError, ClientError
 from app.r2_client import R2_BUCKET_NAME, r2
+
+import uuid
+from fastapi import File, UploadFile, HTTPException
 
 
 from fastapi.middleware.cors import CORSMiddleware
@@ -141,6 +145,123 @@ def obtener_imagen():
 
     except (ClientError, BotoCoreError) as error:
         print(f"Error R2: {type(error).__name__}")
+        raise HTTPException(
+            status_code=503,
+            detail="No se pudo recuperar la imagen"
+        )
+
+
+
+
+collection_name = os.getenv("MONGODB_COLLECTION")
+productos_collection = db[collection_name]
+
+class ProductoCrear(BaseModel):
+    nombre: str = Field(min_length=1, max_length=120)
+    descripcion: str = ""
+    precio: float = Field(ge=0)
+    imagen_key: str
+
+
+@app.post("/productos")
+def crear_producto(producto: ProductoCrear):
+    resultado = productos_collection.insert_one(
+        producto.model_dump()
+    )
+
+    return {
+        "mensaje": "Producto guardado correctamente",
+        "id": str(resultado.inserted_id)
+    }
+
+@app.post("/productos/imagen")
+async def subir_imagen_producto(imagen: UploadFile = File(...)):
+    tipos_permitidos = {
+        "image/jpeg": "jpg",
+        "image/png": "png",
+        "image/webp": "webp",
+    }
+
+    if imagen.content_type not in tipos_permitidos:
+        raise HTTPException(
+            status_code=400,
+            detail="Solo se permiten imágenes JPG, PNG o WebP"
+        )
+
+    contenido = await imagen.read(5 * 1024 * 1024 + 1)
+    await imagen.close()
+
+    if len(contenido) > 5 * 1024 * 1024:
+        raise HTTPException(
+            status_code=413,
+            detail="La imagen no puede superar los 5 MB"
+        )
+
+    extension = tipos_permitidos[imagen.content_type]
+    nombre_archivo = f"productos/{uuid.uuid4().hex}.{extension}"
+
+    try:
+        r2.put_object(
+            Bucket=R2_BUCKET_NAME,
+            Key=nombre_archivo,
+            Body=contenido,
+            ContentType=imagen.content_type
+        )
+    except Exception:
+        raise HTTPException(
+            status_code=503,
+            detail="No se pudo subir la imagen a R2"
+        )
+
+    return {
+        "mensaje": "Imagen subida correctamente",
+        "imagen_key": nombre_archivo
+    }
+
+
+@app.get("/productos")
+def obtener_productos():
+    documentos = productos_collection.find()
+
+    return [
+        {
+            "id": str(producto["_id"]),
+            "nombre": producto.get("nombre", ""),
+            "descripcion": producto.get("descripcion", ""),
+            "precio": producto.get("precio", 0),
+            "imagen_key": producto.get("imagen_key")
+        }
+        for producto in documentos
+    ]
+
+
+@app.get("/productos/{producto_id}/imagen")
+def obtener_imagen_producto(producto_id: str):
+    if not ObjectId.is_valid(producto_id):
+        raise HTTPException(status_code=404, detail="ID inválido")
+
+    producto = productos_collection.find_one({
+        "_id": ObjectId(producto_id)
+    })
+
+    if not producto or not producto.get("imagen_key"):
+        raise HTTPException(
+            status_code=404,
+            detail="Producto sin imagen en R2"
+        )
+
+    try:
+        objeto = r2.get_object(
+            Bucket=R2_BUCKET_NAME,
+            Key=producto["imagen_key"]
+        )
+
+        return StreamingResponse(
+            objeto["Body"],
+            media_type=objeto.get("ContentType", "image/jpeg")
+        )
+
+    except (ClientError, BotoCoreError):
         raise HTTPException(
             status_code=503,
             detail="No se pudo recuperar la imagen"
