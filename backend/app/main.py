@@ -2,13 +2,15 @@ import os
 from bson import ObjectId
 from fastapi import FastAPI, HTTPException
 from fastapi.encoders import jsonable_encoder
+from fastapi.responses import StreamingResponse
 from pymongo.errors import PyMongoError
 from app.database import db
 
 import resend
 from pydantic import BaseModel, EmailStr, Field
 
-
+from botocore.exceptions import BotoCoreError, ClientError
+from app.r2_client import R2_BUCKET_NAME, r2
 
 
 from fastapi.middleware.cors import CORSMiddleware
@@ -95,3 +97,51 @@ def enviar_contacto(datos: Contacto):
         )
 
     return {"mensaje": "Correo enviado correctamente"}
+
+
+@app.get("/r2-test")
+def probar_r2():
+    try:
+        archivo = r2.head_object(
+            Bucket=R2_BUCKET_NAME,
+            Key="digimon_world.jpg"
+        )
+
+        return {
+            "estado": "ok",
+            "mensaje": "Conexión con Cloudflare R2 exitosa",
+            "archivo": "digimon_world.jpg",
+            "tipo": archivo.get("ContentType"),
+            "bytes": archivo.get("ContentLength")
+        }
+
+    except (ClientError, BotoCoreError) as error:
+        print(f"Error al consultar R2: {type(error).__name__}")
+        raise HTTPException(
+            status_code=503,
+            detail="No fue posible consultar Cloudflare R2"
+        )
+
+
+@app.get("/imagen-prueba")
+def obtener_imagen():
+    try:
+        objeto = r2.get_object(
+            Bucket=R2_BUCKET_NAME,
+            Key="digimon_world.jpg"
+        )
+
+        return StreamingResponse(
+            objeto["Body"],
+            media_type=objeto.get("ContentType", "image/jpeg"),
+            headers={
+                "Cache-Control": "public, max-age=300"
+            }
+        )
+
+    except (ClientError, BotoCoreError) as error:
+        print(f"Error R2: {type(error).__name__}")
+        raise HTTPException(
+            status_code=503,
+            detail="No se pudo recuperar la imagen"
+        )

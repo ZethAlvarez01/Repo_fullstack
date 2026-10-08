@@ -6,6 +6,7 @@ import Test from './components/Test.vue';
 import Test2 from './components/Test2.vue';
 import Whatsapp from './components/Whatsapp.vue';
 import SiteHeader from './components/SiteHeader.vue';
+import ImageR2 from './components/ImageR2.vue';
 
 const variable_deL_papa = "Hola soy el papa"
 const person = {
@@ -32,5 +33,9 @@ const person = {
   <hr>
 
   <ContactEmail></ContactEmail>
+
+  <hr>
+
+  <ImageR2></ImageR2>
 
 </template>
