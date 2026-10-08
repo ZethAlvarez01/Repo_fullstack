@@ -1,0 +1,26 @@
+# Frontend
+frontend/node_modules/
+frontend/dist/
+frontend/dist-ssr/
+
+# Backend
+backend/.venv/
+backend/__pycache__/
+backend/**/*.py[cod]
+
+# Secretos y configuracion local
+.env
+.env.*
+!.env.example
+*.local
+
+# Logs y archivos del sistema/editor
+logs/
+*.log
+npm-debug.log*
+yarn-debug.log*
+pnpm-debug.log*
+.DS_Store
+.idea/
+.vscode/*
+!.vscode/extensions.json
