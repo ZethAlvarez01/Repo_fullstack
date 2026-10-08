@@ -25,6 +25,7 @@ const whatsappUrl = `https://wa.me/${telefono}?text=${mensaje}`
 
 <style scoped>
 .whatsapp-button {
+  -webkit-tap-highlight-color: transparent;
   align-items: center;
   background: transparent;
   border-radius: 50%;

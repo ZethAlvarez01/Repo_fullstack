@@ -80,6 +80,11 @@ function selectLink(href: string) {
   z-index: 100;
 }
 
+.site-header a,
+.site-header button {
+  -webkit-tap-highlight-color: transparent;
+}
+
 .brand { align-items: center; color: inherit; display: flex; font-size: 1.125rem; font-weight: 800; gap: .65rem; text-decoration: none; white-space: nowrap; z-index: 1; }
 .brand-mark { color: var(--ink); font-size: 1.25rem; letter-spacing: -.18em; }
 .desktop-nav { display: flex; gap: 1.7rem; white-space: nowrap; z-index: 1; }
