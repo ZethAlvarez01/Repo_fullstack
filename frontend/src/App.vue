@@ -5,6 +5,7 @@ import ContactEmail from './components/ContactEmail.vue';
 import Test from './components/Test.vue';
 import Test2 from './components/Test2.vue';
 import Whatsapp from './components/Whatsapp.vue';
+import SiteHeader from './components/SiteHeader.vue';
 
 const variable_deL_papa = "Hola soy el papa"
 const person = {
@@ -15,6 +16,7 @@ const person = {
 </script>
 
 <template>
+  <SiteHeader />
   <Test></Test>
   <Test2></Test2>
   <Child :mensaje="variable_deL_papa" :person="person" ></Child>
