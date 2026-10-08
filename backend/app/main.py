@@ -78,7 +78,7 @@ def enviar_contacto(datos: Contacto):
 
     try:
         resend.Emails.send({
-            "from": "Formulario <onboarding@resend.dev>",
+            "from": "Contacto Web <contacto@zethalvarezh.com>",
             "to": [destino],
             "subject": f"Nuevo contacto de {datos.nombre}",
             "text": (
