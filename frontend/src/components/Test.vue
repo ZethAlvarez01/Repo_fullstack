@@ -13,7 +13,7 @@ import { ref } from 'vue';
 </script>
 
 <template>
-   <h1>Hola</h1>
+   <h1>Hola Zeth como estas</h1>
    <p>variable {{variable}}</p>
     <h2>{{ myValue }}</h2>
    <h2 :id="myId">Patata</h2>
