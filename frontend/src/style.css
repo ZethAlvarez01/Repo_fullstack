@@ -59,17 +59,17 @@ a { color: inherit; }
 .work { background: var(--paper); }
 .section-heading { align-items: end; display: flex; justify-content: space-between; margin-bottom: clamp(60px,9vh,110px); }
 .section-heading h2 { font: 700 clamp(54px,8.8vw,142px)/.8 'Space Grotesk',sans-serif; letter-spacing: -.075em; margin: 0; }
-.project-list { display: grid; gap: clamp(30px,5vw,70px); }
-.project-card { border-bottom: 1px solid var(--line); display: grid; grid-template-columns: minmax(0,1.2fr) minmax(300px,.85fr); min-height: min(52vw,610px); text-decoration: none; }
-.project-image { background: #111; overflow: hidden; position: relative; }
+.project-list { display: grid; gap: 72px 80px; grid-template-columns: repeat(2,minmax(0,460px)); justify-content: center; }
+.project-card { aspect-ratio: 1; border: 1px solid var(--line); display: grid; grid-template-rows: 61% 39%; max-width: 460px; overflow: hidden; text-decoration: none; width: 100%; }
+.project-image { background: #111; min-height: 0; overflow: hidden; position: relative; }
 .project-image img { height: 100%; object-fit: cover; transition: filter .5s, transform .85s cubic-bezier(.2,.8,.2,1); width: 100%; }
 .project-image-lumina { background: radial-gradient(circle at 50% 50%,#403251,#16121d 66%); }
 .project-image-lumina img { mix-blend-mode: screen; object-fit: contain; padding: 5%; }
-.project-copy { background: #fbfaf8; display: flex; flex-direction: column; justify-content: center; padding: clamp(30px,5vw,80px); }
+.project-copy { background: #fbfaf8; display: flex; flex-direction: column; min-height: 0; padding: clamp(18px,2vw,26px); }
 .project-copy>span { color: var(--purple); font: 500 .62rem 'DM Mono',monospace; letter-spacing: .14em; }
-.project-copy h3 { font: 700 clamp(47px,6.3vw,102px)/.82 'Space Grotesk',sans-serif; letter-spacing: -.065em; margin: auto 0 1.5rem; }
-.project-copy p { color: var(--muted); font-size: clamp(.9rem,1.05vw,1rem); line-height: 1.65; margin: 0; max-width: 430px; }
-.project-copy>div { align-items: end; border-top: 1px solid var(--line); display: flex; justify-content: space-between; margin-top: auto; padding-top: 1.2rem; }
+.project-copy h3 { font: 700 clamp(32px,3.5vw,48px)/.86 'Space Grotesk',sans-serif; letter-spacing: -.06em; margin: 1rem 0 .65rem; }
+.project-copy p { color: var(--muted); display: -webkit-box; font-size: .78rem; line-height: 1.45; margin: 0; overflow: hidden; -webkit-box-orient: vertical; -webkit-line-clamp: 2; }
+.project-copy>div { align-items: end; border-top: 1px solid var(--line); display: flex; justify-content: space-between; margin-top: auto; padding-top: .75rem; }
 .project-copy small { font: 500 .58rem 'DM Mono',monospace; letter-spacing: .1em; }
 .project-copy b { color: var(--purple); font-size: 2rem; transition: transform .3s; }
 .project-card:hover .project-image img { filter: saturate(1.12); transform: scale(1.055); }
@@ -113,9 +113,7 @@ a { color: inherit; }
   .hero { grid-template-columns: 1fr 220px; }
   .about-layout { grid-template-columns: 1fr; }
   .about-copy { max-width: 620px; }
-  .project-card { grid-template-columns: 1fr; min-height: 0; }
-  .project-image { height: min(65vw,600px); }
-  .project-copy { min-height: 360px; }
+  .project-list { gap: 60px; grid-template-columns: repeat(2,minmax(0,400px)); }
   .contact { grid-template-columns: 1fr; }
   .contact-form-wrap { max-width: 680px; width: 100%; }
 }
@@ -128,9 +126,10 @@ a { color: inherit; }
   .hero-pixels { opacity: .45; position: absolute; right: -40px; top: 20%; width: 180px; }
   .hero-bottom { align-items: start; flex-direction: column; gap: 1.5rem; }
   .section-heading { align-items: start; flex-direction: column; gap: 2.2rem; }
-  .project-image { height: 66vw; min-height: 300px; }
-  .project-copy { min-height: 310px; }
-  .project-copy h3 { font-size: 14vw; }
+  .project-list { gap: 50px; grid-template-columns: minmax(0,440px); }
+  .project-card { grid-column: 1 !important; justify-self: center; width: min(100%,440px); }
+  .project-copy h3 { font-size: clamp(30px,10vw,44px); }
+  .project-copy p { display: none; }
   .skill-list article { align-items: start; gap: .8rem; grid-template-columns: 36px 1fr; padding: 2rem 0; }
   .skill-list article p { grid-column: 2; }
   .contact-bottom { flex-wrap: wrap; gap: 1rem 2rem; }
