@@ -1,0 +1,50 @@
+/* Keep transformed and animated sections from widening the mobile viewport. */
+html,
+body,
+#app {
+  width: 100%;
+  max-width: 100%;
+  overflow-x: hidden;
+}
+
+@supports (overflow: clip) {
+  html,
+  body,
+  #app {
+    overflow-x: clip;
+  }
+}
+
+@media (width <= 760px) {
+  .hero-title {
+    top: 30vh;
+    right: 18px;
+  }
+
+  .hero-title p {
+    margin-bottom: 2px;
+    font-size: 16px;
+  }
+
+  .word-mask {
+    width: 100%;
+    height: clamp(78px, 24vw, 96px);
+  }
+
+  .word-mask h1 {
+    font-size: clamp(66px, 22vw, 88px);
+    line-height: 0.82;
+  }
+
+  .runner {
+    width: 118vw;
+    height: 56vh;
+    top: 37vh;
+    right: -34vw;
+  }
+
+  .method,
+  .steps {
+    overflow-x: hidden;
+  }
+}
