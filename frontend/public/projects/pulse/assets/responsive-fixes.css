@@ -1,50 +1,70 @@
-/* Keep transformed and animated sections from widening the mobile viewport. */
-html,
-body,
-#app {
-  width: 100%;
+/* Prevent animated children from creating a horizontal page canvas. */
+html {
   max-width: 100%;
   overflow-x: hidden;
 }
 
+body {
+  min-width: 100%;
+}
+
+#app,
+main,
+.hero {
+  width: 100%;
+  max-width: 100%;
+}
+
 @supports (overflow: clip) {
-  html,
-  body,
-  #app {
+  main {
     overflow-x: clip;
   }
 }
 
 @media (width <= 760px) {
+  .hero {
+    min-height: 100svh;
+  }
+
   .hero-title {
-    top: 30vh;
-    right: 18px;
+    top: 31svh;
+    left: 20px;
+    right: 20px;
   }
 
   .hero-title p {
-    margin-bottom: 2px;
-    font-size: 16px;
+    margin: 0 0 8px;
+    font-size: 15px;
   }
 
   .word-mask {
     width: 100%;
-    height: clamp(78px, 24vw, 96px);
+    height: clamp(62px, 20vw, 78px);
   }
 
   .word-mask h1 {
-    font-size: clamp(66px, 22vw, 88px);
-    line-height: 0.82;
+    font-size: clamp(56px, 18vw, 72px);
+    line-height: 0.84;
   }
 
   .runner {
-    width: 118vw;
-    height: 56vh;
-    top: 37vh;
-    right: -34vw;
+    width: 112vw;
+    height: 52svh;
+    top: 41svh;
+    right: -6vw;
+    object-position: center;
   }
 
+  .ticker {
+    width: 100%;
+    transform: rotate(-1.5deg);
+  }
+
+  .race-scene,
+  .intro,
+  .upcoming,
   .method,
-  .steps {
+  footer {
     overflow-x: hidden;
   }
 }
