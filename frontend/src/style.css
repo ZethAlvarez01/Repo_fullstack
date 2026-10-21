@@ -65,6 +65,9 @@ a { color: inherit; }
 .project-image img { height: 100%; object-fit: cover; transition: filter .5s, transform .85s cubic-bezier(.2,.8,.2,1); width: 100%; }
 .project-image-lumina { background: radial-gradient(circle at 50% 50%,#403251,#16121d 66%); }
 .project-image-lumina img { mix-blend-mode: screen; object-fit: contain; padding: 5%; }
+.project-image-lume { background: #ead1d1; }
+.project-image-lume img { object-position: center 35%; }
+.project-card-lume { grid-column: 1 / -1; justify-self: center; }
 .project-copy { background: #fbfaf8; display: flex; flex-direction: column; min-height: 0; padding: clamp(18px,2vw,26px); }
 .project-copy>span { color: var(--purple); font: 500 .62rem 'DM Mono',monospace; letter-spacing: .14em; }
 .project-copy h3 { font: 700 clamp(32px,3.5vw,48px)/.86 'Space Grotesk',sans-serif; letter-spacing: -.06em; margin: 1rem 0 .65rem; }

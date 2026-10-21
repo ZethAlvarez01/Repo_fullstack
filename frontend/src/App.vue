@@ -5,6 +5,7 @@ import SiteHeader from './components/SiteHeader.vue'
 import Whatsapp from './components/Whatsapp.vue'
 import luminaImage from './assets/projects/lumina-ribbon.png'
 import pulseImage from './assets/projects/pulse-race.png'
+import lumeImage from './assets/projects/lume-beauty.png'
 
 const pointerX = ref(0)
 const pointerY = ref(0)
@@ -118,6 +119,20 @@ onBeforeUnmount(() => {
             <h3>PULSE EVENTS</h3>
             <p>Una plataforma deportiva dinámica con recorridos, eventos anteriores y próximas experiencias.</p>
             <div><small>VUE · SCROLL · EXPERIENCIA WEB</small><b aria-hidden="true">→</b></div>
+          </div>
+        </a>
+
+        <a class="project-card project-card-lume reveal" href="/lume.html">
+          <div class="project-image project-image-lume">
+            <img :src="lumeImage" alt="Vista previa del proyecto Lumé">
+            <span class="pixel-cluster top-left" aria-hidden="true" />
+            <span class="pixel-cluster bottom-right" aria-hidden="true" />
+          </div>
+          <div class="project-copy">
+            <span>03 / BELLEZA CONSCIENTE</span>
+            <h3>LUMÉ</h3>
+            <p>Una experiencia delicada de autocuidado con un espejo interactivo que utiliza la cámara del dispositivo.</p>
+            <div><small>VUE · CÁMARA · EXPERIENCIA WEB</small><b aria-hidden="true">→</b></div>
           </div>
         </a>
       </div>
