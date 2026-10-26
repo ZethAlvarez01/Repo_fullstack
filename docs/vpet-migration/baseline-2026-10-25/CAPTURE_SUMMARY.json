@@ -1,0 +1,81 @@
+{
+  "capturedAt": "2026-10-25",
+  "source": "capturas.jsonl",
+  "total": 112,
+  "complete": 94,
+  "alphaSessions": 90,
+  "identified": 69,
+  "resultConfirmed": 58,
+  "models": [
+    {
+      "model": "dcomplete",
+      "total": 9,
+      "complete": 8,
+      "identified": 0,
+      "alphaSessions": 7,
+      "resultConfirmed": 7,
+      "latest": "2026-10-25T22:21:33.491603+00:00",
+      "latestCommand": "alpha-single-battle-v8:dcomplete"
+    },
+    {
+      "model": "dmc",
+      "total": 25,
+      "complete": 15,
+      "identified": 15,
+      "alphaSessions": 20,
+      "resultConfirmed": 2,
+      "latest": "2026-10-25T22:53:56.964757+00:00",
+      "latestCommand": "alpha-single-battle-v11:dmc"
+    },
+    {
+      "model": "dmx",
+      "total": 17,
+      "complete": 13,
+      "identified": 5,
+      "alphaSessions": 16,
+      "resultConfirmed": 16,
+      "latest": "2026-10-25T22:48:41.571143+00:00",
+      "latestCommand": "alpha-single-battle-v11:dmx"
+    },
+    {
+      "model": "mini",
+      "total": 5,
+      "complete": 5,
+      "identified": 4,
+      "alphaSessions": 5,
+      "resultConfirmed": 5,
+      "latest": "2026-10-25T23:56:40.117327+00:00",
+      "latestCommand": "alpha-single-battle-v12:mini"
+    },
+    {
+      "model": "pen20",
+      "total": 20,
+      "complete": 18,
+      "identified": 17,
+      "alphaSessions": 17,
+      "resultConfirmed": 10,
+      "latest": "2026-10-25T22:13:17.836959+00:00",
+      "latestCommand": "alpha-single-battle-v8:pen20"
+    },
+    {
+      "model": "penx",
+      "total": 26,
+      "complete": 25,
+      "identified": 21,
+      "alphaSessions": 15,
+      "resultConfirmed": 8,
+      "latest": "2026-10-25T22:51:47.087216+00:00",
+      "latestCommand": "alpha-single-battle-v11:penx"
+    },
+    {
+      "model": "xrosmini",
+      "total": 10,
+      "complete": 10,
+      "identified": 7,
+      "alphaSessions": 10,
+      "resultConfirmed": 10,
+      "latest": "2026-10-25T22:02:44.871707+00:00",
+      "latestCommand": "alpha-single-battle-v8:xrosmini"
+    }
+  ]
+}

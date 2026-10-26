@@ -1,0 +1,33 @@
+{
+  "counts": {
+    "availableImages": 1473,
+    "catalogFamilies": 16,
+    "protocolProfiles": 17,
+    "referenceImages": 1473,
+    "referenceRecords": 1473
+  },
+  "dataVersion": "e21a65e066228b73",
+  "generatedAt": "2026-10-26T02:45:58.400834+00:00",
+  "outputHashes": {
+    "battle_probability.json": "32cf94a0c5f1d0bb440aa7a63bbb999e49e8e6745cb88cf48089c549b5c9b6c0",
+    "catalog.json": "c68a9bae703c78123e4190119aae199e11f9764ee7082855ad7b91e544e1afd4",
+    "complete_local.json": "f004195943d4511c141d2b01185f50a331fda40cf1ad5182e73978005f2bf5d8",
+    "dmc_battle_profiles.json": "61e6fcb77671a3c57d10fb3d484ac8c2f5254b2978ab8b413594b7ae52da810a",
+    "image_manifest.json": "9670c10185f47d3ffc1dd6caea305d0393504a6a8cf06e3e1f0b5a8c6aff1a53",
+    "pen20_battle_profiles.json": "040ac43554150e3982a42aebb9f673b7362f38260eaafd0e80e0db447f276e6a",
+    "protocol_profiles.json": "7a3843572d82d73512304554b26dcd8e504254394a5a407f1a12d08e607d93c5",
+    "reference_aliases.json": "a7f77c832a793fde2f216975d9298a864ade9c1f3160a3dfe5d47d89aa398246",
+    "reference_book.json": "e78716913d14476b71721850c29141d21e1d0c2425a1edd4e1dc23d6085efb90",
+    "reference_overrides.json": "a7e5c31522f947acc2abc965f91fc8709be2d0ebe7275180195ae694d6053b63"
+  },
+  "schemaVersion": 1,
+  "sourceHashes": {
+    "battle_probability.json": "bb9ee7b0eb6ca4c6e6d506bffc4096964a84a4309211e0f4fcff009db1b03799",
+    "catalogo.json": "f748400cf56eca426a7d6c90da6bfb8797f9925610efcb628fcd1905538429aa",
+    "complete_local.json": "0bcb35389b406c8e6a6ef91bf3464783065d2c4446b819685634187390d2c2cb",
+    "dmc_battle_profiles.json": "5783a05bc44fe06d68fab9e8d3342b14af525ec4220c4b2b9bf4401b2b3d7a93",
+    "pen20_battle_profiles.json": "92282ad1a5f9470af75e717212f582396da3c80131334af5d4186505feadb037",
+    "referenceWorkbook": "eafef32460644f68773fea8272d03a144923b851bd7ec7cd16f602e1eff699d2",
+    "reference_overrides.json": "c796c1aad57277a9b78f4d9132afc4793edd20cbdf47ac811c9ef81fd75eda84"
+  }
+}

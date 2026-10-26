@@ -122,7 +122,7 @@ onBeforeUnmount(() => {
           </div>
         </a>
 
-        <a class="project-card project-card-lume reveal" href="/lume.html">
+        <a class="project-card reveal" href="/lume.html">
           <div class="project-image project-image-lume">
             <img :src="lumeImage" alt="Vista previa del proyecto Lumé">
             <span class="pixel-cluster top-left" aria-hidden="true" />
@@ -133,6 +133,25 @@ onBeforeUnmount(() => {
             <h3>LUMÉ</h3>
             <p>Una experiencia delicada de autocuidado con un espejo interactivo que utiliza la cámara del dispositivo.</p>
             <div><small>VUE · CÁMARA · EXPERIENCIA WEB</small><b aria-hidden="true">→</b></div>
+          </div>
+        </a>
+
+        <a class="project-card project-card-vpet reveal" href="/vpet/">
+          <div class="project-image project-image-vpet">
+            <div class="vpet-screen" aria-hidden="true">
+              <i class="vpet-digi vpet-digi-left" />
+              <span class="vpet-signal"><i /><i /><i /></span>
+              <i class="vpet-digi vpet-digi-right" />
+              <small>BETA LINK // READY</small>
+            </div>
+            <span class="pixel-cluster top-left" aria-hidden="true" />
+            <span class="pixel-cluster bottom-right" aria-hidden="true" />
+          </div>
+          <div class="project-copy">
+            <span>04 / HARDWARE + WEB</span>
+            <h3>DIGIMON ALPHA</h3>
+            <p>Batallas reales entre V-Pets y rivales web mediante Beta Link, WebUSB y protocolos de distintas familias.</p>
+            <div><small>VUE · WEBUSB · FASTAPI</small><b aria-hidden="true">→</b></div>
           </div>
         </a>
       </div>

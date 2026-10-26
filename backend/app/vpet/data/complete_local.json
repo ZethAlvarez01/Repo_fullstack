@@ -1,0 +1,18 @@
+{
+  "fuente_formato": "https://dmcomm.github.io/orig_battle/",
+  "modelo": "dcomplete",
+  "nota": "Observaciones locales confirmadas por el usuario, no mapa publico verificado. Version y slot no garantizan identidad exclusiva.",
+  "observaciones": [
+    {
+      "codigo_recibido": "FB04-2ED1",
+      "comando": "V1-FC03-FD02",
+      "evidencia": "confirmacion_manual_usuario",
+      "fecha_captura": "2026-10-22T04:24:39.277168+00:00",
+      "fecha_registro": "2026-10-22T04:33:47.294700+00:00",
+      "nombre": "Agumon",
+      "slot": 4,
+      "version_comunicacion": "13"
+    }
+  ],
+  "schema": 1
+}

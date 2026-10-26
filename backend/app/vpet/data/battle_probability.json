@@ -1,0 +1,70 @@
+{
+  "attributeAdvantage": 0.15,
+  "attributeAdvantages": {
+    "Data": "Vaccine",
+    "Vaccine": "Virus",
+    "Virus": "Data"
+  },
+  "attributeAliases": {
+    "": "Sin dato",
+    "None": "Sin dato",
+    "Unknown": "Unknown"
+  },
+  "baseProbability": 0.5,
+  "levelAliases": {
+    "": "Sin dato",
+    "Champion(Xros Wars)": "Champion",
+    "In-Training Ⅰ": "In-Training I",
+    "In-Training Ⅰ(Xros Wars)": "In-Training I",
+    "In-Training Ⅱ": "In-Training II",
+    "In-Training Ⅱ(Xros Wars)": "In-Training II",
+    "Mega(Xros Wars)": "Mega",
+    "Rookie(Xros Wars)": "Rookie",
+    "Ultimate(Xros Wars)": "Ultimate"
+  },
+  "appmonLevelAliases": {
+    "-": "In-Training II",
+    "－": "In-Training II",
+    "Standard": "Rookie",
+    "Super": "Champion",
+    "Ultimate": "Ultimate",
+    "God": "Mega"
+  },
+  "levelDifferenceModifiers": {
+    "0": 0.0,
+    "1": 0.1,
+    "2": 0.25,
+    "3": 0.4,
+    "4": 0.45,
+    "5": 0.45
+  },
+  "levelRanks": {
+    "Armor": 4,
+    "Champion": 4,
+    "Hybrid": 5,
+    "In-Training I": 1,
+    "In-Training II": 2,
+    "Mega": 6,
+    "Rookie": 3,
+    "Ultimate": 5
+  },
+  "levelStep": 0.1,
+  "maximumProbability": 0.95,
+  "minimumProbability": 0.05,
+  "neutralAttributes": [
+    "Free",
+    "Variable",
+    "Unknown",
+    "Sin dato"
+  ],
+  "noise": {
+    "amplitude": 0.03,
+    "enabled": true
+  },
+  "nonCombatantLevels": [
+    "In-Training I",
+    "In-Training II"
+  ],
+  "nonCombatantWinProbability": 0.05,
+  "xAntibodyBonus": 0.05
+}

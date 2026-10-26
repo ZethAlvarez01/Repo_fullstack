@@ -1,0 +1,99 @@
+{
+  "aegisdramon": {
+    "antibody": false,
+    "attacks": [
+      "Power Water",
+      "Blaze Power",
+      "Tera Hydro Breath",
+      "Shine Breaker"
+    ],
+    "attribute": "Vaccine",
+    "description": "A Cyborg Digimon born when Plesiomon fused with data from the Seadramon line. Protected by shining Gold Digizoid armor, it serves as the Crack Team's intelligence and reconnaissance specialist while carrying enough firepower to eliminate an entire battalion alone.",
+    "level": "Mega",
+    "source_url": "https://digimon.net/reference_en/detail.php?directory_name=ageisdramon",
+    "type": "Cyborg"
+  },
+  "alphamonouryuken": {
+    "antibody": true,
+    "attacks": [
+      "Ultimate-Battle-Blade: Ouryuken",
+      "Digitalize of Soul"
+    ],
+    "attribute": "Vaccine",
+    "description": "A form of Alphamon wielding the Ouryuken, created when Ouryumon transforms into a sword. The weapon concentrates the full fighting power of a Mega-level Digimon into Alphamon's attacks.",
+    "level": "Mega",
+    "source_url": "https://digimon.net/reference/detail.php?directory_name=alphamon%3Aouryuken",
+    "type": "Holy Warrior"
+  },
+  "ebemon": {
+    "antibody": false,
+    "attacks": [
+      "Brain Rupture",
+      "Planet Destroyer"
+    ],
+    "attribute": "Virus",
+    "description": "A Cyborg Digimon created after a captured Vademon's configuration data was analyzed and enhanced with mysterious extraterrestrial technology. Its weapons can extract an opponent's stored data or release enough accumulated power to destroy a planet.",
+    "level": "Mega",
+    "source_url": "https://digimon.net/reference_en/detail.php?directory_name=ebemon",
+    "type": "Cyborg"
+  },
+  "imperialdramondragonmode": {
+    "antibody": false,
+    "attacks": [
+      "Mega Death"
+    ],
+    "attribute": "Free",
+    "description": "An immensely powerful Ancient Dragon Digimon whose existence and abilities stand apart from other Digimon. Its power is extremely difficult to control, so depending on how it is raised it may become either a savior or a god of destruction.",
+    "level": "Mega",
+    "source_url": "https://digimon.net/reference_en/detail.php?directory_name=imperialdramondragonmode",
+    "type": "Ancient Dragon"
+  },
+  "imperialdramonfightermode": {
+    "antibody": false,
+    "attacks": [
+      "Positron Laser",
+      "Giga Death"
+    ],
+    "attribute": "Free",
+    "description": "Imperialdramon: Dragon Mode's legendary humanoid form, reached by releasing all of its power. This form gains the intelligence needed to control its immense strength, and its attacks are said to carry enough power to destroy a planet.",
+    "level": "Mega",
+    "source_url": "https://digimon.net/reference_en/detail.php?directory_name=imperialdramonfightermode",
+    "type": "Ancient Dragon Warrior"
+  },
+  "imperialdramonpaladinmode": {
+    "antibody": false,
+    "attacks": [
+      "Omega Blade"
+    ],
+    "attribute": "Vaccine",
+    "description": "Imperialdramon: Fighter Mode's final and strongest form, created after receiving the power of the Holy Knight Omnimon. Legends say it appeared during a catastrophe in the ancient Digital World and saved the world from total collapse.",
+    "level": "Mega",
+    "source_url": "https://digimon.net/reference_en/detail.php?directory_name=imperialdramonpaladinmode",
+    "type": "Ancient Holy Knight"
+  },
+  "kingdrasil7d6": {
+    "antibody": false,
+    "attacks": [
+      "Crystal Shards",
+      "Gigantic Crystal",
+      "Self-Repair"
+    ],
+    "attribute": "Unknown",
+    "description": "The avatar known as 7D6 was created by King Drasil, the mysterious host computer that governs the Digital World on the Network. It can launch crystal fragments and enormous crystals and repair itself, although much about its body remains unknown.",
+    "level": "Mega",
+    "source_url": "https://digimon.net/reference_en/detail.php?directory_name=yggdrasill7d6",
+    "type": "9000"
+  },
+  "ulforceveedramon": {
+    "antibody": false,
+    "attacks": [
+      "Shining V-Force",
+      "Ulforce Saber"
+    ],
+    "attribute": "Vaccine",
+    "description": "A legendary Holy Knight Digimon associated with an ancient prophecy about the Royal Knights. It is the fastest among them and wears exceptionally light Blue Digizoid armor, allowing it to move with unmatched speed while deploying weapons and shields from its V Bracelets.",
+    "level": "Mega",
+    "source_url": "https://digimon.net/reference_en/detail.php?directory_name=ulforcevdramon",
+    "type": "Holy Knight"
+  }
+}

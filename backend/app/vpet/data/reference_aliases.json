@@ -1,0 +1,31 @@
+{
+  "aliases": {
+    "alforcevdramon": "ulforceveedramon",
+    "alforcevdramonx": "ulforceveedramonx",
+    "alphaouryuken": "alphamonouryuken",
+    "atlurkabuterimon": "megakabuterimon",
+    "beelzebumon": "beelzemon",
+    "beelzebumonblastmode": "beelzemonblastmode",
+    "beelzebumonx": "beelzemonx",
+    "chimeramon": "kimeramon",
+    "deathxdorugamon": "dexdorugamon",
+    "deathxdorugoramon": "dexdorugoramon",
+    "deathxdorugremon": "dexdorugreymon",
+    "deathxmon": "dexmon",
+    "dukemon": "gallantmon",
+    "dukemonx": "gallantmonx",
+    "fantomon": "phantomon",
+    "holyangemon": "magnaangemon",
+    "holydramon": "magnadramon",
+    "hououmon": "phoenixmon",
+    "mugendramon": "machinedramon",
+    "omegamon": "omnimon",
+    "omegamonx": "omnimonx",
+    "piemon": "piedmon",
+    "tailmon": "gatomon",
+    "vamdemon": "myotismon",
+    "venomvamdemon": "venommyotismon",
+    "voltobautamon": "boltboutamon"
+  },
+  "schemaVersion": 1
+}

@@ -1,0 +1,189 @@
+{
+  "dmcProxyModels": [
+    "dmc",
+    "dmgz",
+    "dmh",
+    "dmxw"
+  ],
+  "profiles": {
+    "accel": {
+      "alpha": {
+        "command": "A1",
+        "protocolRepresentative": "Kuwagamon X"
+      },
+      "digitsPerPacket": 4,
+      "name": "Digimon Accel (batalla X experimental)",
+      "packetCount": 4,
+      "wireCode": "X1-0159-4379-0009-C009"
+    },
+    "dcomplete": {
+      "alpha": {
+        "command": "B0",
+        "protocolRepresentative": "Agumon"
+      },
+      "digitsPerPacket": 4,
+      "name": "Digivice Ver. Complete (batalla clasica experimental)",
+      "packetCount": 2,
+      "wireCode": "V1-FC03-FD02"
+    },
+    "dm20": {
+      "alpha": null,
+      "digitsPerPacket": 4,
+      "name": "Digital Monster Ver.20th (batalla individual)",
+      "packetCount": 10,
+      "wireCode": "V1-0101-0101-800E-008E-05AE-01EE-000E-000E-000E-@0F0E"
+    },
+    "dmc": {
+      "alpha": {
+        "command": "A4",
+        "protocolRepresentative": "Metal Greymon (Virus)"
+      },
+      "digitsPerPacket": 32,
+      "name": "Digital Monster Color (perfil Color experimental)",
+      "packetCount": 2,
+      "wireCode": "C1-47444C4300000000000B007300019406-47444C4300020002000000000000938B"
+    },
+    "dmgz": {
+      "alpha": {
+        "command": "A7",
+        "protocolRepresentative": "Metal Greymon (Virus)"
+      },
+      "digitsPerPacket": 32,
+      "name": "Digital Monster Color Godzilla (perfil Color experimental)",
+      "packetCount": 2,
+      "wireCode": "C1-47444C4300000000000B007300019406-47444C4300020002000000000000938B"
+    },
+    "dmh": {
+      "alpha": {
+        "command": "A6",
+        "protocolRepresentative": "Metal Greymon (Virus)"
+      },
+      "digitsPerPacket": 32,
+      "name": "Digital Monster Color Monster Hunter (perfil Color experimental)",
+      "packetCount": 2,
+      "wireCode": "C1-47444C4300000000000B007300019406-47444C4300020002000000000000938B"
+    },
+    "dmog": {
+      "alpha": null,
+      "digitsPerPacket": 4,
+      "name": "Digital Monster original (versiones 1-5)",
+      "packetCount": 2,
+      "wireCode": "V1-FC03-FD02"
+    },
+    "dmx": {
+      "alpha": {
+        "command": "A2",
+        "protocolRepresentative": "Agumon X"
+      },
+      "digitsPerPacket": 4,
+      "name": "Digital Monster X",
+      "packetCount": 6,
+      "wireCode": "V1-800E-218E-483E-142E-010E-@800E"
+    },
+    "dmxw": {
+      "alpha": {
+        "command": "A8",
+        "protocolRepresentative": "Metal Greymon (Virus)"
+      },
+      "digitsPerPacket": 32,
+      "name": "Digital Monster Color Xros Wars (perfil Color experimental)",
+      "packetCount": 2,
+      "wireCode": "C1-47444C4300000000000B007300019406-47444C4300020002000000000000938B"
+    },
+    "mini": {
+      "alpha": {
+        "command": "A1",
+        "protocolRepresentative": "Kuwagamon X"
+      },
+      "digitsPerPacket": 4,
+      "name": "Digimon Mini (batalla X experimental)",
+      "packetCount": 4,
+      "wireCode": "X1-0159-4379-0009-C009"
+    },
+    "pen20": {
+      "alpha": {
+        "command": "A0",
+        "protocolRepresentative": "Perfil Pendulum 20th"
+      },
+      "digitsPerPacket": 4,
+      "name": "Pendulum Ver.20th (batalla individual)",
+      "packetCount": 10,
+      "wireCode": "V1-000E-003E-000E-000E-000E-000E-000E-000E-000E-EF0E"
+    },
+    "penc": {
+      "alpha": {
+        "command": "A5",
+        "protocolRepresentative": "Tentomon"
+      },
+      "digitsPerPacket": 32,
+      "name": "Pendulum Color (perfil Color experimental)",
+      "packetCount": 2,
+      "wireCode": "C1-47444470001000000002001400038BDD-47444470001200390000000000028C01"
+    },
+    "pengz": {
+      "alpha": {
+        "command": "A9",
+        "protocolRepresentative": "Tentomon"
+      },
+      "digitsPerPacket": 32,
+      "name": "Pendulum Color Godzilla (perfil Color experimental)",
+      "packetCount": 2,
+      "wireCode": "C1-47444470001000000002001400038BDD-47444470001200390000000000028C01"
+    },
+    "penog": {
+      "alpha": null,
+      "digitsPerPacket": 4,
+      "name": "Pendulum original (batalla)",
+      "packetCount": 4,
+      "wireCode": "V1-211F-000F-080F-EABF"
+    },
+    "penx": {
+      "alpha": {
+        "command": "A1",
+        "protocolRepresentative": "Kuwagamon X"
+      },
+      "digitsPerPacket": 4,
+      "name": "Pendulum X",
+      "packetCount": 4,
+      "wireCode": "X1-0159-4379-0009-C009"
+    },
+    "penz": {
+      "alpha": {
+        "command": "A3",
+        "protocolRepresentative": "Sunarizamon"
+      },
+      "digitsPerPacket": 4,
+      "name": "Pendulum Z (batalla)",
+      "packetCount": 6,
+      "wireCode": "V1-836E-212E-288E-182E-018E-@800E"
+    },
+    "xrosmini": {
+      "alpha": {
+        "command": "B1",
+        "protocolRepresentative": "Shoutmon"
+      },
+      "digitsPerPacket": 4,
+      "name": "Digimon Xros Wars Mini",
+      "packetCount": 4,
+      "wireCode": "Y2-1017-0057-0007-@C^1^F7"
+    }
+  },
+  "schemaVersion": 1,
+  "verifiedResults": {
+    "accel": {
+      "rival_protocolo": "Kuwagamon X (formato PenX compatible)",
+      "vpet_gana": "X1-0159-4379-0009-C009",
+      "vpet_pierde": "X1-0159-4379-0009-C1F9"
+    },
+    "mini": {
+      "rival_protocolo": "Kuwagamon X (formato PenX compatible)",
+      "vpet_gana": "X1-0159-4379-0009-C009",
+      "vpet_pierde": "X1-0159-4379-0009-C1F9"
+    },
+    "penx": {
+      "rival_protocolo": "Kuwagamon X",
+      "vpet_gana": "X1-0159-4379-0009-C009",
+      "vpet_pierde": "X1-0159-4379-0009-C1F9"
+    }
+  }
+}

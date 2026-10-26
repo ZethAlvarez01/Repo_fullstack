@@ -18,6 +18,7 @@ from fastapi import File, UploadFile, HTTPException
 
 
 from fastapi.middleware.cors import CORSMiddleware
+from app.vpet.router import router as vpet_router
 
 app = FastAPI(title="Mi API", version="1.0.0")
 
@@ -29,6 +30,8 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+app.include_router(vpet_router)
 
 
 
