@@ -1,0 +1,21 @@
+{
+  "schemaVersion": 1,
+  "galleries": {
+    "abbadomon_core.jpg": ["abbadomoncore_2.jpg"],
+    "albatusmon.jpg": ["albatusmon_2.jpg"],
+    "arresterdramon_superior_mode.jpg": ["arresterdramon_superior_2.jpg"],
+    "atratusmon.jpg": ["atratusmon_2.jpg"],
+    "bacchusmon.jpg": ["bacchusmon_2.jpg"],
+    "bancholeomon.jpg": ["bancholeomon_2.jpg"],
+    "beelzemon.jpg": ["beelzebumon_2.jpg"],
+    "ceresmon.jpg": ["ceresmon_2.jpg"],
+    "gallantmon.jpg": ["dukemon_2.jpg"],
+    "lopmon.jpg": ["lopmon_2.jpg"],
+    "magnaangemon.jpg": ["holyangemon_2.jpg"],
+    "queenbeemon.jpg": ["queenbeemon_2.jpg"],
+    "seitengokuumon.jpg": ["seitengokuwmon_2.jpg"],
+    "splashmon.jpg": ["splashmon_2.jpg"],
+    "susanomon.jpg": ["susanoomon_2.jpg"],
+    "youkomon.jpg": ["youkomon_2.jpg"]
+  }
+}

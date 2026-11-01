@@ -31,7 +31,8 @@ export async function loadReferenceVariants(name: string): Promise<ReferenceProf
   return result.variants
 }
 
-export function referenceImageUrl(profile: ReferenceProfile | null): string {
-  if (!profile?.image) return ''
-  return `${apiBase}/api/vpet/images/${encodeURIComponent(profile.image)}`
+export function referenceImageUrl(profile: ReferenceProfile | null, imageIndex = 0): string {
+  const filename = profile?.images?.[imageIndex]?.filename ?? profile?.image
+  if (!filename) return ''
+  return `${apiBase}/api/vpet/images/${encodeURIComponent(filename)}`
 }

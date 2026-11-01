@@ -6,6 +6,7 @@ import json
 import os
 import re
 import unicodedata
+from copy import deepcopy
 from functools import lru_cache
 from pathlib import Path
 from typing import Any
@@ -21,6 +22,7 @@ PUBLIC_CONFIGS = {
     "protocol-profiles": "protocol_profiles.json",
     "dmc-battle-profiles": "dmc_battle_profiles.json",
     "pen20-battle-profiles": "pen20_battle_profiles.json",
+    "penc-battle-profiles": "penc_battle_profiles.json",
 }
 DEFAULT_R2_IMAGE_PREFIX = "img_reference_book"
 
@@ -44,10 +46,19 @@ def load_data(filename: str) -> Any:
 
 def bootstrap() -> dict[str, Any]:
     manifest = load_data("manifest.json")
+    counts = dict(manifest["counts"])
+    primary_images = {image["filename"] for image in load_data("image_manifest.json")["images"]}
+    extra_images = {
+        filename
+        for gallery in load_data("reference_galleries.json")["galleries"].values()
+        for filename in gallery
+    } - primary_images
+    counts["referenceImages"] += len(extra_images)
+    counts["availableImages"] += len(extra_images)
     return {
         "schemaVersion": 1,
         "dataVersion": manifest["dataVersion"],
-        "counts": manifest["counts"],
+        "counts": counts,
         "probability": load_data("battle_probability.json"),
         "protocols": load_data("protocol_profiles.json"),
         "resources": {
@@ -59,10 +70,31 @@ def bootstrap() -> dict[str, Any]:
     }
 
 
+def with_reference_images(record: dict[str, Any]) -> dict[str, Any]:
+    """Enrich both Atlas and local records without changing their battle identity."""
+    primary = record.get("image")
+    filenames = [primary] if primary else []
+    if primary and record.get("kind") == "Digimon":
+        filenames.extend(load_data("reference_galleries.json")["galleries"].get(primary, []))
+    filenames = list(dict.fromkeys(filenames))
+    return {
+        **record,
+        "images": [
+            {
+                "filename": filename,
+                "image_url": f"/api/vpet/images/{filename}",
+                "label": f"Ilustración {index + 1}",
+            }
+            for index, filename in enumerate(filenames)
+        ],
+    }
+
+
 def search_reference(query: str = "", offset: int = 0, limit: int = 50) -> dict[str, Any]:
     needle = normalize_name(query)
     try:
-        return reference_repository.search(needle, offset, limit)
+        result = reference_repository.search(needle, offset, limit)
+        return {**result, "items": [with_reference_images(record) for record in result["items"]]}
     except PyMongoError:
         pass
     records = load_data("reference_book.json")["records"]
@@ -78,7 +110,7 @@ def search_reference(query: str = "", offset: int = 0, limit: int = 50) -> dict[
         "total": total,
         "offset": offset,
         "limit": limit,
-        "items": records[offset : offset + limit],
+        "items": [with_reference_images(record) for record in records[offset : offset + limit]],
         "source": "json-fallback",
     }
 
@@ -88,11 +120,11 @@ def reference_variants(name: str) -> list[dict[str, Any]]:
     aliases = load_data("reference_aliases.json")["aliases"]
     key = aliases.get(key, key)
     try:
-        return reference_repository.variants(key)
+        return [with_reference_images(record) for record in reference_repository.variants(key)]
     except PyMongoError:
         pass
     return [
-        item
+        with_reference_images(item)
         for item in load_data("reference_book.json")["records"]
         if item["normalizedName"] == key
     ]
@@ -105,6 +137,17 @@ def catalog_family(family: str | None = None, include_reference: bool = False) -
     entry = catalog["familias"].get(family)
     if entry is None:
         raise KeyError(family)
+    entry = deepcopy(entry)
+    if family == "mini":
+        slot_by_version: dict[str, int] = {}
+        for catalog_entry in entry.get("entradas", []):
+            version = catalog_entry.get("version", "")
+            slot = slot_by_version.get(version, 0)
+            catalog_entry["identificador"] = slot
+            catalog_entry["version_comunicacion"] = "0"
+            if catalog_entry.get("evidencia") == "indice_pendiente":
+                catalog_entry["evidencia"] = "orden_roster_publicado"
+            slot_by_version[version] = slot + 1
     result = {"schema": catalog.get("schema"), "family": family, **entry}
     if include_reference:
         records = load_data("reference_book.json")["records"]
@@ -116,7 +159,7 @@ def catalog_family(family: str | None = None, include_reference: bool = False) -
             key = normalize_name(name)
             profile = by_name.get(aliases.get(key, key))
             if profile is not None:
-                profiles[name] = profile
+                profiles[name] = with_reference_images(profile)
         result["referenceProfiles"] = profiles
     return result
 
@@ -142,6 +185,11 @@ def image_object_key(filename: str) -> str | None:
         for item in load_data("image_manifest.json")["images"]
         if item["available"]
     }
+    allowed.update(
+        name
+        for gallery in load_data("reference_galleries.json")["galleries"].values()
+        for name in gallery
+    )
     if filename not in allowed:
         return None
     prefix = os.getenv("VPET_R2_IMAGE_PREFIX", DEFAULT_R2_IMAGE_PREFIX).strip("/")

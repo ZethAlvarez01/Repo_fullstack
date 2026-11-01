@@ -62,7 +62,14 @@ export interface ReferenceProfile {
   antibody: boolean
   appmon_id: string | number | null
   image: string | null
+  images?: ReferenceIllustration[]
   source_url: string | null
+}
+
+export interface ReferenceIllustration {
+  filename: string
+  image_url: string
+  label: string
 }
 
 export interface ReferenceSearchResult {

@@ -43,6 +43,17 @@ class VPetDataTests(unittest.TestCase):
         self.assertIn("penx", catalog["familias"])
         self.assertIn("penc", catalog["familias"])
 
+    def test_mini_catalog_assigns_every_roster_slot(self):
+        catalog = service.catalog_family("mini", include_reference=True)
+        entries = catalog["entradas"]
+        self.assertEqual(len(entries), 43)
+        self.assertTrue(all(item["identificador"] is not None for item in entries))
+        agumon = next(item for item in entries if item["version"] == "Mini 1.0" and item["identificador"] == 2)
+        tentomon = next(item for item in entries if item["version"] == "Mini 2.0" and item["identificador"] == 2)
+        patamon = next(item for item in entries if item["version"] == "Mini 3.0" and item["identificador"] == 2)
+        self.assertEqual((agumon["nombre"], tentomon["nombre"], patamon["nombre"]), ("Agumon", "Tentomon", "Patamon"))
+        self.assertIn("Agumon", catalog["referenceProfiles"])
+
     def test_unknown_public_config_is_rejected(self):
         with self.assertRaises(HTTPException) as context:
             get_config("../manifest")

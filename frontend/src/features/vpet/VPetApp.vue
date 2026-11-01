@@ -1,7 +1,8 @@
 <script setup lang="ts">
 import { computed, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import { calculateProbability } from './battle/calculateProbability'
-import { loadCatalogFamily, loadReferenceVariants, loadVPetBootstrap, loadVPetConfig, referenceImageUrl, searchReferenceBook } from './data/client'
+import { loadCatalogFamily, loadReferenceVariants, loadVPetBootstrap, loadVPetConfig, searchReferenceBook } from './data/client'
+import ReferenceImageGallery from './ReferenceImageGallery.vue'
 import type { CatalogEntry, ReferenceProfile, ReferenceSearchResult, VPetBootstrap } from './data/types'
 import { Ch340Transport } from './usb/ch340'
 
@@ -9,10 +10,11 @@ type Tab = 'battle' | 'probability' | 'system'
 type ModelStatus = 'verified' | 'testing' | 'untested'
 
 const levelDisplayOrder = ['In-Training I', 'In-Training II', 'Rookie', 'Champion', 'Armor', 'Hybrid', 'Ultimate', 'Mega']
-const classicAlphaModels = new Set(['pen20', 'penx', 'accel', 'mini', 'xrosmini', 'dcomplete', 'dmx', 'penz', 'dmc'])
-const catalogBackedModels = new Set(['pen20', 'penx', 'accel', 'mini', 'dmx', 'penz', 'dmc'])
+const classicAlphaModels = new Set(['pen20', 'penx', 'accel', 'mini', 'xrosmini', 'dcomplete', 'dmx', 'penz', 'dmc', 'penc'])
+const catalogBackedModels = new Set(['pen20', 'penx', 'accel', 'mini', 'dmx', 'penz', 'dmc', 'penc'])
 
 interface DmcProxy { id: string; name: string; level: string; attribute: string; battle_eligible: boolean; version_word: number; slot_word: number; base_power: number | null; attribute_word: number }
+interface PencFingerprint { id: string; name: string; level: string; attribute: string; album_id: number | null; power: number | null; attribute_word: number | null; version_name: string }
 
 const modelStatuses: Record<string, ModelStatus> = {
   dcomplete: 'verified', dmc: 'verified', dmx: 'verified', mini: 'verified',
@@ -42,16 +44,16 @@ const query = ref('')
 const searchResult = ref<ReferenceSearchResult | null>(null)
 const selectedWeb = ref<ReferenceProfile | null>(null)
 const selectedModel = ref('penx')
+const selectedMiniVersion = ref('Mini 1.0')
 const loading = ref(true)
 const searching = ref(false)
 const error = ref('')
-const imageFailed = ref(false)
-const physicalImageFailed = ref(false)
 const physicalVPet = ref<ReferenceProfile | null>(null)
 const battleState = ref<'idle' | 'preparing' | 'armed' | 'fighting' | 'complete' | 'error'>('idle')
 const battleWinner = ref<'web' | 'vpet' | null>(null)
 const battleProbability = ref<number | null>(null)
 const battleConnectionError = ref('')
+const battleCooldown = ref(false)
 const consoleLines = ref<string[]>(['SISTEMA: inicializando Digimon Alpha…'])
 const gpsState = ref<'idle' | 'loading' | 'active' | 'error'>('idle')
 const latitude = ref<number | null>(null)
@@ -67,10 +69,12 @@ const serialDecoder = new TextDecoder()
 let activeCatalog: CatalogEntry[] = []
 let physicalProfiles = new Map<string, ReferenceProfile>()
 let activeDmcProxy: DmcProxy | null = null
+let activePencFingerprints: PencFingerprint[] = []
 let dmcExchangeProcessed = false
 let firmwareLineChain: Promise<void> = Promise.resolve()
 let battleDeadline = 0
 let battleRetryTimer: ReturnType<typeof setTimeout> | undefined
+let battleCooldownTimer: ReturnType<typeof setTimeout> | undefined
 
 const calculatorAttacker = ref({ level: 'Mega', attribute: 'Vaccine', hasXAntibody: false })
 const calculatorDefender = ref({ level: 'Rookie', attribute: 'Data', hasXAntibody: false })
@@ -81,8 +85,9 @@ const levelOptions = computed(() => {
 const attributeOptions = ['Vaccine', 'Virus', 'Data', 'Free', 'Variable', 'Unknown']
 const modelOptions = computed(() => Object.entries(bootstrap.value?.protocols.profiles ?? {}))
 const selectedModelName = computed(() => modelNames[selectedModel.value] ?? 'V-Pet físico')
-const selectedImage = computed(() => imageFailed.value ? '' : referenceImageUrl(selectedWeb.value))
-const physicalImage = computed(() => physicalImageFailed.value ? '' : referenceImageUrl(physicalVPet.value))
+const battleConnectionInstruction = computed(() => selectedModel.value === 'penc'
+  ? 'En el Pendulum Color elige CONNECT → DIGIMON, inicia la batalla y mantén unidos los pines.'
+  : `Inicia la batalla en ${selectedModelName.value} y mantén unidos los tres pines.`)
 const selectedAlphaSupported = computed(() => classicAlphaModels.has(selectedModel.value) && Boolean(bootstrap.value?.protocols.profiles[selectedModel.value]?.alpha))
 const selectedWebBattleLevel = computed(() => {
   if (!selectedWeb.value || !bootstrap.value) return 'Sin dato'
@@ -91,7 +96,7 @@ const selectedWebBattleLevel = computed(() => {
   return Object.entries(aliases).find(([key]) => key.toLocaleLowerCase() === raw.toLocaleLowerCase())?.[1] ?? raw
 })
 const selectedWebIsBaby = computed(() => bootstrap.value?.probability.nonCombatantLevels.includes(selectedWebBattleLevel.value) ?? false)
-const canPrepareBattle = computed(() => usbState.value === 'connected' && Boolean(selectedWeb.value) && !selectedWebIsBaby.value && selectedAlphaSupported.value && battleState.value !== 'preparing' && battleState.value !== 'armed' && battleState.value !== 'fighting')
+const canPrepareBattle = computed(() => usbState.value === 'connected' && Boolean(selectedWeb.value) && !selectedWebIsBaby.value && selectedAlphaSupported.value && !battleCooldown.value && battleState.value !== 'preparing' && battleState.value !== 'armed' && battleState.value !== 'fighting')
 const probability = computed(() => {
   if (!bootstrap.value) return null
   return calculateProbability(calculatorAttacker.value, calculatorDefender.value, bootstrap.value.probability)
@@ -153,6 +158,9 @@ function receiveUsbData(data: Uint8Array) {
   if (selectedModel.value === 'dmc' && !dmcExchangeProcessed && /r:[0-9A-F]{32}[\s\S]*r:[0-9A-F]{32}/i.test(serialText)) {
     dmcExchangeProcessed = processDmcExchange(serialText)
   }
+  if (selectedModel.value === 'penc' && !dmcExchangeProcessed && /r:[0-9A-F]{32}[\s\S]*r:[0-9A-F]{32}/i.test(serialText)) {
+    dmcExchangeProcessed = /r:47444C43/i.test(serialText) ? processPencDmcExchange(serialText) : processPencExchange(serialText)
+  }
   const lines = serialText.split(/\r?\n/)
   serialText = lines.pop() ?? ''
   for (const line of lines) if (line.trim()) {
@@ -188,8 +196,12 @@ async function toggleUsb() {
   try {
     const info = await transport().connect()
     usbLabel.value = info.label
-    usbState.value = 'connected'
     log(`USB: ${info.label} conectado a 9600 baudios.`)
+    usbState.value = 'connecting'
+    log('USB: esperando que el firmware termine de reiniciar…')
+    await new Promise(resolve => setTimeout(resolve, 2300))
+    if (!transport().connected) throw new Error('El Beta Link se desconectó durante el arranque.')
+    usbState.value = 'connected'
     log('USB: listo para recibir mensajes del firmware.')
   } catch (cause) {
     usbState.value = Ch340Transport.supported() ? 'disconnected' : 'unsupported'
@@ -206,20 +218,24 @@ async function prepareBattle() {
   battleProbability.value = null
   dmcExchangeProcessed = false
   physicalVPet.value = null
-  physicalImageFailed.value = false
   try {
     activeCatalog = []
     physicalProfiles.clear()
     activeDmcProxy = null
+    activePencFingerprints = []
     if (catalogBackedModels.has(selectedModel.value)) {
       const catalog = await loadCatalogFamily(selectedModel.value, true)
       activeCatalog = catalog.entradas.filter(entry => entry.identificador !== null)
       physicalProfiles = new Map(Object.entries(catalog.referenceProfiles ?? {}))
     }
-    if (selectedModel.value === 'dmc') {
+    if (selectedModel.value === 'dmc' || selectedModel.value === 'penc') {
       const config = await loadVPetConfig<{ profiles: DmcProxy[] }>('dmc-battle-profiles')
       activeDmcProxy = chooseDmcProxy(config.profiles, selectedWeb.value)
       log(`MÁSCARA DMC: ${activeDmcProxy.name} (${activeDmcProxy.level}, ${activeDmcProxy.attribute}).`)
+    }
+    if (selectedModel.value === 'penc') {
+      const config = await loadVPetConfig<{ profiles: PencFingerprint[] }>('penc-battle-profiles')
+      activePencFingerprints = config.profiles
     }
     if (selectedModel.value === 'xrosmini') {
       for (const name of ['Shoutmon', 'Greymon (2010 Anime Version)', 'Guilmon', 'Agumon', 'V-Mon', 'Shoutmon X4']) {
@@ -232,7 +248,7 @@ async function prepareBattle() {
     battleDeadline = Date.now() + 100_000
     await armSelectedModel()
     battleState.value = 'armed'
-    log(`BATALLA: ${selectedModelName.value} armado durante 100 segundos. Inicia la batalla y mantén unidos los tres pines.`)
+    log(`BATALLA: ${selectedModelName.value} armado durante 100 segundos. ${battleConnectionInstruction.value}`)
   } catch (cause) {
     battleState.value = 'error'
     battleConnectionError.value = cause instanceof Error ? cause.message : 'No se pudo preparar la batalla.'
@@ -259,7 +275,7 @@ function chooseDmcProxy(profiles: DmcProxy[], fighter: ReferenceProfile) {
 async function armSelectedModel() {
   const command = bootstrap.value?.protocols.profiles[selectedModel.value]?.alpha?.command
   if (!command) throw new Error('Este modelo no tiene un comando Alpha disponible.')
-  if (selectedModel.value === 'dmc') {
+  if (selectedModel.value === 'dmc' || selectedModel.value === 'penc') {
     if (!activeDmcProxy || activeDmcProxy.base_power === null) throw new Error('La máscara DMC no está preparada.')
     const word = (value: number) => value.toString(16).toUpperCase().padStart(4, '0')
     await transport().write(`${command}:${word(activeDmcProxy.version_word)}:${word(activeDmcProxy.slot_word)}:${word(activeDmcProxy.base_power)}:${word(activeDmcProxy.attribute_word)}\n`)
@@ -303,14 +319,16 @@ function identifyBattleQuery(packet: string) {
   if (model === 'penx' || model === 'mini' || model === 'accel') {
     if (!/^[0-9A-F]{4}$/.test(packet) || (words[0] & 0xf) !== 9) return null
     if (model === 'accel') return { name: 'Digimon Accel', profile: genericPhysicalProfile('Digimon Accel') }
-    return catalogIdentity((words[0] >> 4) & 0xff, [String((words[0] >> 12) & 0xf)])
+    const identified = catalogIdentity((words[0] >> 4) & 0xff, model === 'mini' ? [selectedMiniVersion.value] : [String((words[0] >> 12) & 0xf)])
+    if (identified || model === 'penx') return identified
+    return { name: 'Digimon Mini', profile: genericPhysicalProfile('Digimon Mini') }
   }
   if (model === 'xrosmini') {
     if (!/^[0-9A-F]{4}$/.test(packet) || (words[0] & 0xf) !== 7) return null
     const key = `${(words[0] >> 12) & 0xf}:${(words[0] >> 4) & 0xff}`
     const names: Record<string, string> = { '1:1': 'Shoutmon', '1:11': 'Guilmon', '1:12': 'Agumon', '1:13': 'V-Mon', '1:16': 'Shoutmon X4', '2:1': 'Greymon (2010 Anime Version)' }
     const name = names[key]
-    return name ? { name, profile: physicalProfiles.get(name) ?? genericPhysicalProfile(name) } : null
+    return name ? { name, profile: physicalProfiles.get(name) ?? genericPhysicalProfile(name) } : { name: 'Digimon Xros Wars Mini', profile: genericPhysicalProfile('Digimon Xros Wars Mini') }
   }
   if (model === 'dcomplete') return /^[0-9A-F]{4}$/.test(packet) ? { name: 'Digivice Ver. Complete', profile: genericPhysicalProfile('Digivice Ver. Complete') } : null
   if ((model === 'dmx' || model === 'penz') && words.length === 2 && words.every(word => (word & 0xf) === 0xe)) {
@@ -322,26 +340,63 @@ function identifyBattleQuery(packet: string) {
     return identified ?? { name: model === 'dmx' ? 'Digital Monster X' : 'Pendulum Z', profile: genericPhysicalProfile(model === 'dmx' ? 'Digital Monster X' : 'Pendulum Z', stage, attribute, model === 'dmx') }
   }
   if (model === 'pen20' && words.length === 2 && words.every(word => (word & 0xf) === 0xe)) return catalogIdentity((words[1] >> 6) & 0xff, ['comun'])
+  if (model === 'penc' && /^[0-9A-F]{4}-FFFF-[0-9A-F]{4}-[0-9A-F]{4}$/.test(packet)) {
+    const [albumWord, , , attributeWord] = packet.split('-').map(value => Number.parseInt(value, 16))
+    const matches = activePencFingerprints.filter(profile => profile.album_id === albumWord && profile.attribute_word === attributeWord)
+    const names = [...new Set(matches.map(profile => profile.name))]
+    if (names.length === 1) return { name: names[0], profile: physicalProfiles.get(names[0]) ?? genericPhysicalProfile(names[0], matches[0].level, matches[0].attribute) }
+    return null
+  }
+  if (model === 'penc' && /^[0-9A-F]{8}$/.test(packet)) {
+    const version = String(Number.parseInt(packet.slice(0, 4), 16) + 1)
+    return catalogIdentity(Number.parseInt(packet.slice(4), 16), [version])
+  }
   return null
 }
 
 async function processFirmwareLine(line: string) {
-  if (/bit .*timed out|too short|incomplet|interrump|rechaz/i.test(line)) {
+  const retryableContactFailure = /bit .*timed out|too short|incomplet|interrump|rechaz/i.test(line)
+  if (retryableContactFailure && battleState.value === 'armed') {
+    log('BATALLA: contacto incompleto; se intentará nuevamente.')
+    return
+  }
+  if (retryableContactFailure) {
     battleState.value = 'error'
     battleConnectionError.value = 'La conexión con el V-Pet fue incompleta o se interrumpió. Separa los pines y vuelve a preparar la batalla.'
     log(`BATALLA ERROR: ${battleConnectionError.value}`)
     return
   }
   if (selectedModel.value === 'dmc' && !dmcExchangeProcessed && /(?:^|\s)r:[0-9A-F]{32}(?=\s|$)/i.test(line)) dmcExchangeProcessed = processDmcExchange(line)
-  if (/^alpha:armed:family-battle-v\d+:[0-4CM]$/.test(line)) {
+  if (selectedModel.value === 'penc' && !dmcExchangeProcessed && /(?:^|\s)r:[0-9A-F]{32}(?=\s|$)/i.test(line)) dmcExchangeProcessed = /r:47444C43/i.test(line) ? processPencDmcExchange(line) : processPencExchange(line)
+  if (/^alpha:armed:family-battle-v\d+:[0-5CM]$/.test(line)) {
     battleState.value = 'armed'
     log('BATALLA: listo para la batalla.')
+    return
+  }
+  const pencIdentityMatch = line.match(/^alpha:identity:penc:([0-9A-F]{4}):([0-9A-F]{4})$/i)
+  if (pencIdentityMatch) {
+    const identity = catalogIdentity(Number.parseInt(pencIdentityMatch[2], 16), [String(Number.parseInt(pencIdentityMatch[1], 16) + 1)])
+    if (identity?.profile) {
+      physicalVPet.value = identity.profile
+      log(`V-PET PENDULUM COLOR: ${identity.name}.`)
+      if (!identity.profile.image) void enrichPhysicalProfile(identity.name)
+    } else {
+      log(`PENDULUM COLOR: identidad ${pencIdentityMatch[1]}:${pencIdentityMatch[2]} no encontrada en el catálogo.`)
+    }
     return
   }
   const queryMatch = line.match(/^alpha:q:([0-9A-F-]+)$/i)
   if (queryMatch && battleState.value === 'armed') {
     battleState.value = 'fighting'
-    const identity = identifyBattleQuery(queryMatch[1].toUpperCase())
+    let identity = identifyBattleQuery(queryMatch[1].toUpperCase())
+    if (!identity && selectedModel.value === 'penc' && /^(?:[0-9A-F]{4}FFFF|[0-9A-F]{4}-FFFF-[0-9A-F]{4}-[0-9A-F]{4})$/i.test(queryMatch[1])) {
+      // CONNECT > DIGIMON intentionally hides the PenC roster slot behind
+      // FFFF. Do not abort the timing-sensitive DMC exchange: continue with
+      // a neutral physical profile until a verified fingerprint is available.
+      const name = 'Pendulum Color'
+      identity = { name, profile: genericPhysicalProfile(name) }
+      log(`PENDULUM COLOR: modo DIGIMON no expone la especie (${queryMatch[1]}); la batalla continuará con datos neutrales.`)
+    }
     if (!identity?.profile || !selectedWeb.value || !bootstrap.value) {
       await transport().write('P\n')
       battleState.value = 'error'
@@ -350,6 +405,14 @@ async function processFirmwareLine(line: string) {
       return
     }
     physicalVPet.value = identity.profile
+    if (!identity.profile.image && !identity.name.startsWith('Digimon ')) {
+      void loadReferenceVariants(identity.name).then(variants => {
+        if (variants[0]) {
+          physicalProfiles.set(identity.name, variants[0])
+          physicalVPet.value = variants[0]
+        }
+      }).catch(() => log(`REFERENCE BOOK: no se encontraron datos para ${identity.name}.`))
+    }
     const result = calculateProbability({
       kind: selectedWeb.value.kind,
       level: selectedWeb.value.level || 'Unknown',
@@ -380,9 +443,26 @@ async function processFirmwareLine(line: string) {
     }
     if (battleState.value === 'fighting' || battleState.value === 'error') {
       battleState.value = battleWinner.value ? 'complete' : 'error'
+      battleCooldown.value = true
+      if (battleCooldownTimer) clearTimeout(battleCooldownTimer)
+      battleCooldownTimer = setTimeout(() => {
+        battleCooldown.value = false
+        log('BATALLA: ya puedes preparar otra conexión.')
+      }, 2500)
       if (battleWinner.value) log(`GANADOR: ${battleWinner.value === 'web' ? selectedWeb.value?.name : physicalVPet.value?.name}.`)
       else if (!battleConnectionError.value) battleConnectionError.value = 'La conexión terminó sin un resultado completo del V-Pet.'
     }
+  }
+}
+
+async function enrichPhysicalProfile(name: string) {
+  try {
+    const variants = await loadReferenceVariants(name)
+    if (!variants[0]) return
+    physicalProfiles.set(name, variants[0])
+    physicalVPet.value = variants[0]
+  } catch {
+    log(`REFERENCE BOOK: no se encontraron datos para ${name}.`)
   }
 }
 
@@ -397,14 +477,12 @@ function processDmcExchange(line: string) {
   const identity = catalogIdentity(identityWords[4], [version])
   if (identity) {
     physicalVPet.value = identity.profile
-    physicalImageFailed.value = false
     log(`V-PET DMC: ${identity.name}.`)
     if (!identity.profile.image) {
       void loadReferenceVariants(identity.name).then(variants => {
         if (variants[0]) {
           physicalProfiles.set(identity.name, variants[0])
           physicalVPet.value = variants[0]
-          physicalImageFailed.value = false
         }
       }).catch(() => log(`REFERENCE BOOK: no se encontraron datos para ${identity.name}.`))
     }
@@ -413,6 +491,82 @@ function processDmcExchange(line: string) {
     battleWinner.value = (resultWords[4] & 1) !== 0 ? 'vpet' : 'web'
     battleState.value = 'fighting'
     log(`RESULTADO DMC: ${battleWinner.value === 'vpet' ? 'ganó el V-Pet físico' : 'ganó el rival web'}.`)
+  }
+  return true
+}
+
+function processPencDmcExchange(line: string) {
+  const received = [...line.matchAll(/(?:^|\s)r:([0-9A-F]{32})(?=\s|$)/gi)].map(match => match[1].toUpperCase())
+  if (received.length < 2) return false
+  const words = (block: string) => Array.from({ length: 8 }, (_, index) => Number.parseInt(block.slice(index * 4, index * 4 + 4), 16))
+  const checksumOk = (values: number[]) => (values.slice(0, 7).reduce((sum, word) => sum + word, 0) & 0xffff) === values[7]
+  const identityWords = words(received[0])
+  const resultWords = words(received[1])
+  if (identityWords[0] !== 0x4744 || identityWords[1] !== 0x4c43 || identityWords[2] !== 0x0000 || !checksumOk(identityWords)) return false
+
+  const candidates = activePencFingerprints.filter(profile => profile.album_id === identityWords[3] && profile.attribute_word === identityWords[6])
+  const names = [...new Set(candidates.map(profile => profile.name))]
+  const levels = [...new Set(candidates.map(profile => profile.level))]
+  const attributes = [...new Set(candidates.map(profile => profile.attribute))]
+  if (names.length === 1) {
+    const name = names[0]
+    physicalVPet.value = physicalProfiles.get(name) ?? genericPhysicalProfile(name, levels[0] ?? null, attributes[0] ?? null)
+    if (!physicalVPet.value.image) void enrichPhysicalProfile(name)
+  } else {
+    physicalVPet.value = genericPhysicalProfile('Pendulum Color', levels.length === 1 ? levels[0] : null, attributes.length === 1 ? attributes[0] : null)
+    log(`PENDULUM COLOR: especie oculta por el modo DIGIMON; ${names.length} perfiles compatibles.`)
+  }
+
+  if (selectedWeb.value && bootstrap.value && physicalVPet.value) {
+    const estimate = calculateProbability({
+      kind: selectedWeb.value.kind,
+      level: selectedWeb.value.level || 'Unknown',
+      attribute: selectedWeb.value.attribute || 'Unknown',
+      hasXAntibody: selectedWeb.value.antibody,
+    }, {
+      kind: physicalVPet.value.kind,
+      level: physicalVPet.value.level || 'Unknown',
+      attribute: physicalVPet.value.attribute || 'Unknown',
+      hasXAntibody: false,
+    }, bootstrap.value.probability)
+    battleProbability.value = estimate.attackerWinProbability
+  }
+
+  if (resultWords[0] === 0x4744 && resultWords[1] === 0x4c43 && resultWords[2] === 0x0002 && checksumOk(resultWords)) {
+    battleWinner.value = (resultWords[4] & 1) !== 0 ? 'vpet' : 'web'
+    battleState.value = 'fighting'
+    log(`RESULTADO PENDULUM COLOR: ${battleWinner.value === 'vpet' ? 'ganó el V-Pet físico' : 'ganó el rival web'} (confirmado por el aparato).`)
+  }
+  return true
+}
+
+function processPencExchange(line: string) {
+  const received = [...line.matchAll(/(?:^|\s)r:([0-9A-F]{32})(?=\s|$)/gi)].map(match => match[1].toUpperCase())
+  if (received.length < 2) return false
+  const words = (block: string) => Array.from({ length: 8 }, (_, index) => Number.parseInt(block.slice(index * 4, index * 4 + 4), 16))
+  const identityWords = words(received[0])
+  const resultWords = words(received[1])
+  const checksumOk = (values: number[]) => (values.slice(0, 7).reduce((sum, word) => sum + word, 0) & 0xffff) === values[7]
+  if (identityWords[0] !== 0x4744 || identityWords[1] !== 0x4470 || !checksumOk(identityWords)) return false
+  const identity = catalogIdentity(identityWords[4], [String(identityWords[3] + 1)])
+  if (identity) {
+    physicalVPet.value = identity.profile
+    log(`V-PET PENDULUM COLOR: ${identity.name}.`)
+    if (!identity.profile.image) {
+      void loadReferenceVariants(identity.name).then(variants => {
+        if (variants[0]) {
+          physicalProfiles.set(identity.name, variants[0])
+          physicalVPet.value = variants[0]
+        }
+      }).catch(() => log(`REFERENCE BOOK: no se encontraron datos para ${identity.name}.`))
+    }
+  }
+  if (resultWords[0] === 0x4744 && resultWords[1] === 0x4470 && resultWords[2] === 0x0012 && checksumOk(resultWords)) {
+    // Unlike DMC, no winner bit has been verified for PenC yet. Preserve the
+    // weighted decision already sent to the firmware instead of replacing it
+    // with an inferred value that can contradict the physical device.
+    battleState.value = 'fighting'
+    log(`PENDULUM COLOR: marcador recibido (${resultWords[6].toString(16).toUpperCase().padStart(4, '0')}); ganador conservado según la decisión ponderada.`)
   }
   return true
 }
@@ -438,7 +592,6 @@ async function runSearch(selectFirst = false) {
 function selectFighter(profile: ReferenceProfile) {
   selectedWeb.value = profile
   query.value = profile.name
-  imageFailed.value = false
   calculatorAttacker.value = {
     level: profile.level || 'Unknown',
     attribute: profile.attribute || 'Unknown',
@@ -450,14 +603,16 @@ function selectFighter(profile: ReferenceProfile) {
 function clearAll() {
   if (battleRetryTimer) clearTimeout(battleRetryTimer)
   battleRetryTimer = undefined
+  if (battleCooldownTimer) clearTimeout(battleCooldownTimer)
+  battleCooldownTimer = undefined
+  battleCooldown.value = false
   battleDeadline = 0
   void usbTransport?.disconnect()
   selectedWeb.value = null
   query.value = ''
   searchResult.value = null
   selectedModel.value = 'penx'
-  imageFailed.value = false
-  physicalImageFailed.value = false
+  selectedMiniVersion.value = 'Mini 1.0'
   physicalVPet.value = null
   battleState.value = 'idle'
   battleWinner.value = null
@@ -467,6 +622,7 @@ function clearAll() {
   activeCatalog = []
   physicalProfiles.clear()
   activeDmcProxy = null
+  activePencFingerprints = []
   stopGps()
   consoleLines.value = ['SISTEMA: interfaz reiniciada.', 'SISTEMA: lista para una nueva sesión.']
   serialText = ''
@@ -577,11 +733,14 @@ onBeforeUnmount(() => {
             <select v-model="selectedModel">
               <option v-for="([key]) in modelOptions" :key="key" :value="key">{{ modelOptionLabel(key) }}</option>
             </select>
+            <select v-if="selectedModel === 'mini'" v-model="selectedMiniVersion" aria-label="Versión de Digimon Mini">
+              <option>Mini 1.0</option><option>Mini 2.0</option><option>Mini 3.0</option>
+            </select>
             <small>EL DIGIMON FÍSICO SE DETECTARÁ AUTOMÁTICAMENTE</small>
           </label>
           <div class="battle-actions">
             <button class="usb-button" :class="{ connected: usbState === 'connected' }" :disabled="usbState === 'unsupported' || usbState === 'connecting'" @click="toggleUsb"><span>USB</span> {{ usbState === 'connected' ? 'DESCONECTAR' : usbState === 'connecting' ? 'CONECTANDO…' : 'CONECTAR BETA LINK' }}<small>{{ usbState === 'unsupported' ? 'WEBUSB NO DISPONIBLE' : usbLabel || 'CH340 · 9600 BAUDIOS' }}</small></button>
-            <button class="prepare-battle-button" :disabled="!canPrepareBattle" @click="prepareBattle">PREPARAR BATALLA<small>{{ !selectedAlphaSupported ? 'MODELO TODAVÍA NO DISPONIBLE' : !selectedWeb ? 'SELECCIONA UN RIVAL' : selectedWebIsBaby ? 'LOS BB NO PUEDEN PELEAR' : usbState !== 'connected' ? 'CONECTA EL BETA LINK' : 'UNA SOLA CONEXIÓN' }}</small></button>
+            <button class="prepare-battle-button" :disabled="!canPrepareBattle" @click="prepareBattle">PREPARAR BATALLA<small>{{ !selectedAlphaSupported ? 'MODELO TODAVÍA NO DISPONIBLE' : !selectedWeb ? 'SELECCIONA UN RIVAL' : selectedWebIsBaby ? 'LOS BB NO PUEDEN PELEAR' : usbState !== 'connected' ? 'CONECTA EL BETA LINK' : battleCooldown ? 'SEPARA LOS PINES Y ESPERA' : 'UNA SOLA CONEXIÓN' }}</small></button>
           </div>
         </div>
 
@@ -591,7 +750,7 @@ onBeforeUnmount(() => {
           <template v-else-if="selectedWebIsBaby"><b>!</b><span>ESTE DIGIMON TODAVÍA ES BB</span><small>In-Training I, In-Training II y los Appmon de nivel － no pueden participar en batallas.</small></template>
           <template v-else-if="!selectedAlphaSupported"><b>!</b><span>MODELO TODAVÍA NO DISPONIBLE</span><small>Este protocolo requiere una máscara Color o todavía no tiene comando Alpha.</small></template>
           <template v-else-if="battleState === 'preparing'"><b>…</b><span>PREPARANDO BATALLA</span><small>Cargando el catálogo y armando el firmware.</small></template>
-          <template v-else-if="battleState === 'armed'"><b>✓</b><span>LISTO: YA PUEDES CONECTAR EL V-PET</span><small>Inicia la batalla en {{ selectedModelName }} y mantén unidos los tres pines.</small></template>
+          <template v-else-if="battleState === 'armed'"><b>✓</b><span>LISTO: YA PUEDES CONECTAR EL V-PET</span><small>{{ battleConnectionInstruction }}</small></template>
           <template v-else-if="battleState === 'fighting'"><b>VS</b><span>BATALLA EN CURSO</span><small>No separes los pines hasta que termine el intercambio.</small></template>
           <template v-else-if="battleState === 'complete'"><b>✓</b><span>BATALLA FINALIZADA</span><small>Puedes preparar otra batalla.</small></template>
           <template v-else-if="battleState === 'error'"><b>!</b><span>LA BATALLA NO TERMINÓ</span><small>Revisa la consola y vuelve a preparar la pelea.</small></template>
@@ -608,11 +767,7 @@ onBeforeUnmount(() => {
 
         <div class="arena">
           <article class="fighter-card web-fighter" :class="{ empty: !selectedWeb, winner: battleState === 'complete' && battleWinner === 'web' }">
-            <div class="fighter-visual">
-              <img v-if="selectedImage" :src="selectedImage" :alt="selectedWeb?.name" @error="imageFailed = true">
-              <div v-else class="unknown-digi">?</div>
-              <span>RIVAL WEB</span>
-            </div>
+            <ReferenceImageGallery :profile="selectedWeb" label="RIVAL WEB" />
             <div class="fighter-copy">
               <h2>{{ selectedWeb?.name || 'SELECCIONA UN RIVAL' }}</h2>
               <div class="stat-grid">
@@ -627,7 +782,7 @@ onBeforeUnmount(() => {
           <div class="versus" aria-hidden="true"><i /><strong>VS</strong><small>{{ battleState === 'armed' ? 'LISTO' : battleState === 'fighting' ? 'BATALLA' : battleState === 'complete' ? 'FINALIZADA' : 'EN ESPERA' }}</small></div>
 
           <article class="fighter-card physical-fighter" :class="{ empty: !physicalVPet, winner: battleState === 'complete' && battleWinner === 'vpet' }">
-            <div class="fighter-visual"><img v-if="physicalImage" :src="physicalImage" :alt="physicalVPet?.name" @error="physicalImageFailed = true"><div v-else class="unknown-digi">?</div><span>V-PET FÍSICO</span></div>
+            <ReferenceImageGallery :profile="physicalVPet" label="V-PET FÍSICO" />
             <div class="fighter-copy">
               <h2>{{ physicalVPet?.name || selectedModelName }}</h2>
               <div class="stat-grid">

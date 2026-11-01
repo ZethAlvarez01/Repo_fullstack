@@ -112,11 +112,11 @@
     },
     "penc": {
       "alpha": {
-        "command": "A5",
-        "protocolRepresentative": "Tentomon"
+        "command": "A4",
+        "protocolRepresentative": "Perfil DMC compatible"
       },
       "digitsPerPacket": 32,
-      "name": "Pendulum Color (perfil Color experimental)",
+      "name": "Pendulum Color (modo CONNECT > DIGIMON)",
       "packetCount": 2,
       "wireCode": "C1-47444470001000000002001400038BDD-47444470001200390000000000028C01"
     },

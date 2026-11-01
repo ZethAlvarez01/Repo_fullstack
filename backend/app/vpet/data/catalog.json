@@ -6768,11 +6768,12 @@
           "version_comunicacion": "0"
         },
         {
-          "evidencia": "indice_pendiente",
+          "evidencia": "captura_local_y_slot_roster",
           "fuente": "https://lcd.withthewill.net/MiniProfiles",
-          "identificador": null,
+          "identificador": 2,
           "nombre": "Agumon",
-          "version": "Mini 1.0"
+          "version": "Mini 1.0",
+          "version_comunicacion": "0"
         },
         {
           "evidencia": "indice_pendiente",
